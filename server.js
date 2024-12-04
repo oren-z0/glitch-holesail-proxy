@@ -1,10 +1,15 @@
-const HOLESAIL_BUFF_SEED = (process.env.HOLESAIL_BUFF_SEED || "").trim().toLowerCase();
+const HOLESAIL_CONNECTION_STRING = (process.env.HOLESAIL_CONNECTION_STRING || "").trim();
 
-const isBuffSeedQuoted = ((HOLESAIL_BUFF_SEED[0] === '"' || HOLESAIL_BUFF_SEED[0] === '\'') && HOLESAIL_BUFF_SEED.slice(-1) === HOLESAIL_BUFF_SEED[0]);
-const buffSeed = isBuffSeedQuoted ? HOLESAIL_BUFF_SEED.slice(1, -1) : HOLESAIL_BUFF_SEED;
-if (/^[0-9a-f]{64}$/.test(buffSeed)) {
+const isConnectionStringQuoted = ((HOLESAIL_CONNECTION_STRING[0] === '"' || HOLESAIL_CONNECTION_STRING[0] === '\'') && HOLESAIL_CONNECTION_STRING.slice(-1) === HOLESAIL_CONNECTION_STRING[0]);
+const connectionString = isConnectionStringQuoted ? HOLESAIL_CONNECTION_STRING.slice(1, -1) : HOLESAIL_CONNECTION_STRING;
+if (connectionString.length >= 32) {
+  const { createHash } = require("node:crypto");
   const HolesailClient = require("holesail-client");
-  const holesailClient = new HolesailClient(buffSeed, 'secure');
+  const holesailClient = (
+    (connectionString.length === 64)
+    ? new HolesailClient(connectionString)
+    : new HolesailClient(createHash('sha256').update(connectionString).digest('hex'), 'secure')
+  );
   const port = Number(process.env.PORT);
   holesailClient.connect({ port, address: '0.0.0.0' }, () => {
     console.info(`Running holesail-client on port ${port}`);
@@ -14,11 +19,9 @@ if (/^[0-9a-f]{64}$/.test(buffSeed)) {
 
   fastify.get("*", (request, reply) => {
     reply.code(500).header('Content-Type', 'text/plain').send(
-      buffSeed
-      ? `Invalid HOLESAIL_BUFF_SEED: must be a hex string of 32 bytes.
-If you are running holesail cli, calculate the sha256 of your connection-string by opening a shell terminal and calling:
-echo -n 'YOUR-CONNECTION-STRING' | shasum -a 256`
-      : "Server is not configured: must set HOLESAIL_BUFF_SEED environment variable (see .env file)."
+      connectionString
+      ? "Invalid HOLESAIL_CONNECTION_STRING: connection strings should have a minimum length of 32 chars."
+      : "Server is not configured: must set HOLESAIL_CONNECTION_STRING environment variable (see .env file)."
     );
   });
   fastify.listen(
@@ -28,7 +31,7 @@ echo -n 'YOUR-CONNECTION-STRING' | shasum -a 256`
         console.error(err);
         process.exit(1);
       }
-      console.info(`Missing HOLESAIL_BUFF_SEED. Your app is listening on ${address}`);
+      console.info(`Missing HOLESAIL_CONNECTION_STRING. Your app is listening on ${address}`);
     }
   );
 }
