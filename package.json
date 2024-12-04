@@ -1,0 +1,24 @@
+{
+  "name": "glitch-holesail-proxy",
+  "version": "0.1.0",
+  "description": "A template project for Glitch that runs a Holesail client and forwards all incoming connections",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "fastify": "^4.29.0",
+    "holesail-client": "^1.1.6"
+  },
+  "engines": {
+    "node": "14.x"
+  },
+  "repository": {
+    "url": "https://glitch.com/edit/#!/glitch-mvp-node"
+  },
+  "license": "MIT",
+  "keywords": [
+    "node",
+    "glitch"
+  ]
+}
