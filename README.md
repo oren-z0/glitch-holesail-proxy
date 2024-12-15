@@ -14,7 +14,7 @@ npx holesail --live 8080
 
 2. Copy the connection string.
 
-3. Click the following link to deploy the project on *glitch.com*: https://glitch.new/github.com/oren-z0/glitch-holesail-proxy
+3. Click the following link to deploy the project on *glitch.com*: [https://glitch.new/github.com/oren-z0/glitch-holesail-proxy](https://glitch.new/github.com/oren-z0/glitch-holesail-proxy)
 
 4. Go to the `.env` file in your project and set `HOLESAIL_CONNECTION_STRING`.
 
